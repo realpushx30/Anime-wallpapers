@@ -1,0 +1,146 @@
+export default function AnimeWallpaperSite() { const wallpapers = [ { id: 1, title: "Neon Samurai", image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop", }, { id: 2, title: "Cyber Tokyo", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop", }, { id: 3, title: "Night Warrior", image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=1200&auto=format&fit=crop", }, ];
+
+const [comments, setComments] = React.useState([]); const [input, setInput] = React.useState(""); const [downloadsLeft, setDownloadsLeft] = React.useState(0);
+
+const handleComment = () => { if (!input.trim()) return;
+
+setComments([
+  {
+    text: input,
+    time: new Date().toLocaleTimeString(),
+  },
+  ...comments,
+]);
+
+setDownloadsLeft((prev) => prev + 1);
+setInput("");
+
+};
+
+const handleDownload = async (imageUrl, title) => { if (downloadsLeft <= 0) { alert("Comment once to unlock 1 wallpaper download."); return; }
+
+try {
+  const response = await fetch(imageUrl);
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${title}.jpg`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setDownloadsLeft((prev) => prev - 1);
+} catch (err) {
+  alert("Download failed.");
+}
+
+};
+
+return ( <div className="min-h-screen bg-[#0b0f19] text-white font-sans overflow-hidden"> <div className="absolute inset-0 bg-gradient-to-br from-[#111827] via-[#0f172a] to-black opacity-95" />
+
+<div className="relative z-10 px-6 py-10 max-w-7xl mx-auto">
+    <header className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
+      <div>
+        <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent">
+          AnimeVerse 3D
+        </h1>
+        <p className="text-gray-400 mt-2 text-lg">
+          Premium anime wallpapers • Free downloads • Comment to unlock
+        </p>
+      </div>
+
+      <div className="bg-white/10 border border-white/10 rounded-2xl px-5 py-3 backdrop-blur-xl shadow-2xl">
+        <p className="text-sm text-gray-300">Downloads Available</p>
+        <h2 className="text-3xl font-bold text-cyan-300">
+          {downloadsLeft}
+        </h2>
+      </div>
+    </header>
+
+    <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      {wallpapers.map((wallpaper) => (
+        <div
+          key={wallpaper.id}
+          className="group bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl hover:scale-[1.02] transition duration-300"
+        >
+          <div className="overflow-hidden">
+            <img
+              src={wallpaper.image}
+              alt={wallpaper.title}
+              className="h-[420px] w-full object-cover group-hover:scale-110 transition duration-500"
+            />
+          </div>
+
+          <div className="p-5">
+            <h2 className="text-2xl font-bold mb-3 tracking-wide">
+              {wallpaper.title}
+            </h2>
+
+            <button
+              onClick={() =>
+                handleDownload(wallpaper.image, wallpaper.title)
+              }
+              className="w-full bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold py-3 rounded-2xl hover:opacity-90 transition"
+            >
+              Download Wallpaper
+            </button>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <section className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl shadow-2xl">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Comment something to unlock 1 wallpaper download..."
+          className="flex-1 bg-[#111827] border border-white/10 rounded-2xl px-5 py-4 outline-none text-white placeholder:text-gray-500"
+        />
+
+        <button
+          onClick={handleComment}
+          className="bg-gradient-to-r from-purple-500 to-cyan-400 px-8 py-4 rounded-2xl font-bold text-black hover:opacity-90 transition"
+        >
+          Post Comment
+        </button>
+      </div>
+
+      <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+        {comments.length === 0 ? (
+          <div className="text-gray-500 text-center py-10 border border-dashed border-white/10 rounded-2xl">
+            No comments yet. Be the first anime fan 👀
+          </div>
+        ) : (
+          comments.map((comment, index) => (
+            <div
+              key={index}
+              className="bg-[#111827] border border-white/10 rounded-2xl p-4"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-cyan-300">
+                  Anime Fan
+                </h3>
+                <span className="text-xs text-gray-500">
+                  {comment.time}
+                </span>
+              </div>
+
+              <p className="text-gray-300 leading-relaxed">
+                {comment.text}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+    </section>
+
+    <footer className="mt-16 text-center text-gray-500 text-sm">
+      Made with ❤️ using React + Tailwind CSS
+    </footer>
+  </div>
+</div>
+
+); }
